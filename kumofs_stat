@@ -27,6 +27,14 @@ env.server parameter is kumofs server address and ports.
   [kumofs_stat_*]
      env.server server1:19800 server2:19800 ...
 
+This is a wildcard plugin. To monitor an kumofs status,
+link kumofs_stat_<kumostat command> to this file. E.g.
+
+  ln -s /usr/share/node/node/plugins-auto/kumofs_stat \
+        /etc/munin/node.d/kumofs_stat_items
+
+... will monitor kumofs stored items on kumo server.
+
 =head1 INTERPRETATION
 
 The plugin shows the status kumofs running on the machine.
@@ -80,14 +88,14 @@ if ( defined $ARGV[0] and $ARGV[0] eq "config" ) {
   }
   print "\n";
   print "graph_vlabel $COMMAND\n";
-  my @colors = qw(90EE90 FFB6C1 BA55D3 7B68EE FF4500 B0E0E6);
+  my @colors = qw(90ee90 ffb6c1 ba55d3 7b68ee ff4500 b0e0e6);
   my $color_index = 0;
   foreach my $server (@SERVERS) {
     print "$COMMAND$server.label $COMMAND $server\n";
     my $color = $colors[$color_index];
-    if ( $color ) {
+    if ( $color ne '' ) {
       $color_index += 1;
-      print "$COMMAND$server.colour #$color\n";
+      print "$COMMAND$server.colour $color\n";
     }
   }
   exit 0;
