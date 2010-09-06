@@ -1,0 +1,88 @@
+#!/usr/bin/perl
+# -*- cperl -*-
+
+=head1 NAME
+
+ip_conntrack - Plugin to monitor the number of tracked connections
+(ip_conntrack) through a Linux 2.6 ipv4 firewall
+
+=head1 APPLICABLE SYSTEMS
+
+Require below proc files
+- /proc/sys/net/ipv4/ip_conntrack_max
+- /proc/sys/net/ipv4/ip_conntrack_count
+
+=head1 CONFIGURATION
+
+=head1 INTERPRETATION
+
+=head1 MAGIC MARKERS
+
+  #%# family=auto
+  #%# capabilities=autoconf
+
+=head1 VERSION
+
+  $Id: $
+
+=head1 AUTHOR
+
+Naoya Nakazawa
+
+=head1 LICENSE
+
+GPLv2
+
+=cut
+
+use strict;
+use warnings;
+use File::Basename;
+use Munin::Plugin;
+
+my $COUNT = '/proc/sys/net/ipv4/netfilter/ip_conntrack_count';
+my $MAX   = '/proc/sys/net/ipv4/netfilter/ip_conntrack_max';
+
+if ( defined $ARGV[0] and $ARGV[0] eq "autoconf" ) {
+  if (not -f $COUNT or not -f $MAX) {
+    print "no (require ($COUNT) and ($MAX))\n";
+    exit 1;
+  }
+
+  print "yes\n";
+  exit 0;
+}
+
+if ( defined $ARGV[0] and $ARGV[0] eq "config" ) {
+  print "graph_title ip_conntrack\n";
+  print "graph_args --base 1000 --lower-limit 0\n";
+  print "graph_category network\n";
+  print "\n";
+  print "graph_vlabel ip_contrack\n";
+  print "ip_conntrack_count.label ip_conntrack_count\n";
+  print "ip_conntrack_count.draw STACK\n";
+  print "ip_conntrack_count.colour 4444ff\n";
+  print "ip_conntrack_max.label ip_conntrack_max\n";
+  print "ip_conntrack_max.colour ff0000\n";
+  print "ip_conntrack_max.draw LINE1\n";
+  exit 0;
+}
+
+my $count = 0;
+open (IN, $COUNT) or
+  die "Could not open $COUNT for reading: $!\n";
+  $count = <IN>;
+  chomp $count;
+close (IN);
+
+print "ip_conntrack_count.value $count\n";
+
+my $max = 0;
+open (IN, $MAX) or
+  die "Could not open $MAX for reading: $!\n";
+  $max = <IN>;
+  chomp $max;
+close (IN);
+
+print "ip_conntrack_max.value $max\n";
+
