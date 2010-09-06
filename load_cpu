@@ -76,7 +76,7 @@ if [ "$1" = "config" ]; then
         #
 	echo 'cpu.label cpu'
 	echo 'cpu.draw LINE1'
-	echo 'cpu.colur ff0000'
+	echo 'cpu.colour ff0000'
 	# These two read the environment for warning values for the field
 	# "load".  If "load_warning" or "warning" aren't set in the
 	# environment, no warning levels are set.  Likewise for "load_critical"
