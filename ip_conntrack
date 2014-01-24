@@ -9,8 +9,13 @@ ip_conntrack - Plugin to monitor the number of tracked connections
 =head1 APPLICABLE SYSTEMS
 
 Require below proc files
-- /proc/sys/net/ipv4/ip_conntrack_max
-- /proc/sys/net/ipv4/ip_conntrack_count
+lower version from CentOS5:
+  - /proc/sys/net/ipv4/ip_conntrack_max
+  - /proc/sys/net/ipv4/ip_conntrack_count
+
+CentOS6:
+  - /proc/sys/net/netfilter/nf_conntrack_max
+  - /proc/sys/net/netfilter/nf_conntrack_count
 
 =head1 CONFIGURATION
 
@@ -40,8 +45,18 @@ use warnings;
 use File::Basename;
 use Munin::Plugin;
 
-my $COUNT = '/proc/sys/net/ipv4/netfilter/ip_conntrack_count';
-my $MAX   = '/proc/sys/net/ipv4/netfilter/ip_conntrack_max';
+my $COUNT;
+my $MAX;
+
+if ( -e '/proc/sys/net/ipv4/netfilter/ip_conntrack_max' ) {
+  $COUNT = '/proc/sys/net/ipv4/netfilter/ip_conntrack_count';
+  $MAX   = '/proc/sys/net/ipv4/netfilter/ip_conntrack_max';
+} elsif ( -e '/proc/sys/net/netfilter/nf_conntrack_max' ) {
+  $COUNT = '/proc/sys/net/netfilter/nf_conntrack_count';
+  $MAX   = '/proc/sys/net/netfilter/nf_conntrack_max';
+} else {
+  die "Error: $!\n";
+}
 
 if ( defined $ARGV[0] and $ARGV[0] eq "autoconf" ) {
   if (not -f $COUNT or not -f $MAX) {
